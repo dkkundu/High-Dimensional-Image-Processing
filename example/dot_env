@@ -1,0 +1,5 @@
+SECRET_KEY="DsdsdsDS789687bh%hjv9&56gbsd9900"
+PORT=5000
+DEBUG=True
+CELERY_BROKER_URL='redis://localhost:6379/0'
+CELERY_BACKEND_URL='redis://localhost:6379/0'

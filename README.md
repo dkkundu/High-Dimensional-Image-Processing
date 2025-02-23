@@ -1,56 +1,75 @@
-# Project Title
+# High-Dimensional-Image-Processing System
+
+## Prerequisites
+- Python 3.x
+- Virtualenv
+- Redis (for Celery)
 
 ## Setup
 
-### Prerequisites
-
-- Python 3.x
-- `venv` module
-
-### Installation
-
-1. Clone the repository:
+1. **Clone the repository:**
     ```sh
-    git clone <repository_url>
-    cd <repository_name>
+    git clone https://github.com/dkkundu/High-Dimensional-Image-Processing.git
+    cd High-Dimensional-Image-Processing
     ```
 
-2. Create a virtual environment:
+2. **Create and activate a virtual environment:**
     ```sh
-    python3 -m venv venv
+    python3 -m venv env
+    source env/bin/activate  # On Windows use `env\Scripts\activate`
     ```
 
-3. Activate the virtual environment:
-
-    - On Windows:
-        ```sh
-        venv\Scripts\activate
-        ```
-    - On macOS/Linux:
-        ```sh
-        source venv/bin/activate
-        ```
-
-4. Install the required packages:
+3. **Install the dependencies:**
     ```sh
     pip install -r requirements.txt
     ```
 
-## Running the Project
-
-1. Ensure the virtual environment is activated.
-2. Run the main script:
+4. **Set up the environment variables:**
+    Copy the example `.env` file to the root directory:
     ```sh
-    python main.py
+    cp example/dot_env .env
     ```
 
-## Deactivating the Virtual Environment
+5. **Initialize the database:**
+    ```sh
+    ./migrate_db.sh
+    ```
 
-To deactivate the virtual environment, simply run:
-```sh
-deactivate
-```
+## Running the Application
 
-## Additional Information
+1. **Start the Flask application:**
+    ```sh
+    python run.py
+    ```
 
-- Add any additional information or instructions here.
+2. **Access the application:**
+    Open your web browser and go to `http://localhost:8001`.
+
+## Running Celery Worker
+
+1. **Start the Celery worker:**
+    ```sh
+    celery -A app.celery_app.celery worker --loglevel=info
+    ```
+
+## Additional Commands
+
+- **Run database migrations:**
+    ```sh
+    flask db migrate
+    flask db upgrade
+    ```
+
+- **Create a new admin user:**
+    ```sh
+    flask create_admin
+    ```
+
+- **Run tests:**
+    ```sh
+    pytest
+    ```
+
+## Note
+
+Make sure Redis is installed on your system.
