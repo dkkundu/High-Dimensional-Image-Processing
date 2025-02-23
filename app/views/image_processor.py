@@ -17,10 +17,16 @@ class ImageProcessor:
         dims = {0: 'Time', 1: 'Z', 2: 'Channel', 3: 'Y', 4: 'X'}
         
         if time is not None:
+            if time < 0 or time >= self.shape[0]:
+                raise IndexError(f"Time index {time} is out of bounds for axis 0 with size {self.shape[0]}")
             slice_idx[0] = time
         if z is not None:
+            if z < 0 or z >= self.shape[1]:
+                raise IndexError(f"Z index {z} is out of bounds for axis 1 with size {self.shape[1]}")
             slice_idx[1] = z
         if channel is not None:
+            if channel < 0 or channel >= self.shape[2]:
+                raise IndexError(f"Channel index {channel} is out of bounds for axis 2 with size {self.shape[2]}")
             slice_idx[2] = channel
             
         return self.image[tuple(slice_idx)]

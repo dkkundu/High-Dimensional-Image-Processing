@@ -27,40 +27,6 @@ def upload_image_task(file_path, reduest_id):
     
 
 @celery.task
-def get_metadata_task(image_id):
-    db = SessionLocal()
-    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(image_id)).first()
-    db.close()
-    
-    if not image:
-        return {"error": "Image not found"}
-    
-    return {
-        "dimensions": image.dimensions,
-        "upload_time": image.upload_time,
-        "filename": image.filename
-    }
-
-@celery.task
-def get_slice_task(image_id, time, z, channel):
-    db = SessionLocal()
-    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(image_id)).first()
-    db.close()
-    
-    if not image:
-        return {"error": "Image not found"}
-    
-    processor = ImageProcessor(image.file_path)
-    try:
-        slice_data = processor.get_slice(time, z, channel)
-    except IndexError:
-        return {"error": "Invalid slice parameters"}
-    
-    output_path = os.path.join(UPLOAD_DIR, f"slice_{image_id}.tif")
-    tifffile.imwrite(output_path, slice_data)
-    return {"file_path": output_path}
-
-@celery.task
 def analyze_image_task(image_id, components):
     db = SessionLocal()
     image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(image_id)).first()

@@ -90,12 +90,13 @@ def get_slice(reduest_id):
         }), 404
     
     processor = ImageProcessor(image.file_path)
+    
     try:
         slice_data = processor.get_slice(time, z, channel)
-    except IndexError:
+    except IndexError as e:
         return jsonify({
             "status": "404",
-            "messages": "Invalid slice parameters",
+            "messages": str(e),
             "reduest_id": reduest_id,
             "error": ""
         }), 404
@@ -113,11 +114,15 @@ def get_slice(reduest_id):
         "data": {"url": file_url}
     }), 200
 
-def analyze_image(reduest_id):
+def analyze_image(request_id):
+    if request.content_type != 'application/json':
+        return jsonify({"error": "Unsupported Media Type"}), 415
+
     data = request.get_json()
     components = data.get('components', 3)
+
     db = SessionLocal()
-    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(reduest_id)).first()
+    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(request_id)).first()
     db.close()
     
     if not image:
@@ -126,24 +131,41 @@ def analyze_image(reduest_id):
     processor = ImageProcessor(image.file_path)
     pca_result = processor.perform_pca(components)
     
-    output_path = os.path.join(UPLOAD_DIR, f"pca_{image_id}.tif")
+    output_path = os.path.join("media", f"pca_{request_id}.tif")
     tifffile.imwrite(output_path, pca_result)
     
     db = SessionLocal()
-    db.add(PCAResults(
+    pca_record = PCAResults(
         image_id=image.id,
         components=components,
         file_path=output_path,
         explained_variance=[]
-    ))
+    )
+    db.add(pca_record)
     db.commit()
+    db.refresh(pca_record)
     db.close()
     
-    return {"file_path": output_path}
+    file_url = request.url_root + 'media/' + os.path.basename(output_path)
 
-def get_statistics(reduest_id):
+    return jsonify(
+    {
+        "status": "201",
+        "request_id": request_id,
+        "message": "File upload request successfully processed",
+        "data": {
+            "image_id": image.id,
+            "pca_result": list(pca_result.shape),
+            "components": pca_record.components,
+            "explained_variance": pca_record.explained_variance,
+            "file_url": file_url
+        }
+    }
+    ), 200
+
+def get_statistics(request_id):
     db = SessionLocal()
-    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(reduest_id)).first()
+    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(request_id)).first()
     db.close()
     
     if not image:
