@@ -9,15 +9,7 @@ from app.models.image_process import ImageMetadata, ImageStatistics, PCAResults 
 from app.tasks import (
     upload_image_task,
 )
-from flask import send_from_directory
 
-
-os.makedirs("media", exist_ok=True)
-os.makedirs("media", exist_ok=True)
-
-
-def uploaded_file(filename):
-    return send_from_directory('media', filename)
 
 
 def upload_image():
@@ -174,7 +166,3 @@ def get_statistics(reduest_id):
     db.close()
     
     return stats
-
-
-def serve_media(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
