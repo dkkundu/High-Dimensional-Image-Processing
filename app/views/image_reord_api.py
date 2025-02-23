@@ -34,9 +34,9 @@ def upload_image():
             }
         ), 202
 
-def get_metadata(reduest_id):
+def get_metadata(request_id):
     db = SessionLocal()
-    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(reduest_id)).first()
+    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(request_id)).first()
     db.close()
     
     if not image:
@@ -68,24 +68,24 @@ def get_metadata(reduest_id):
     return jsonify({
         "status": "200",
         "messages": "Metadata successfully retrieved",
-        "reduest_id": reduest_id,
+        "reduest_id": request_id,
         "data": metadata_response
     }), 200
 
-def get_slice(reduest_id):
+def get_slice(request_id):
     time = request.args.get('time', type=int)
     z = request.args.get('z', type=int)
     channel = request.args.get('channel', type=int)
 
     db = SessionLocal()
-    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(reduest_id)).first()
+    image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(request_id)).first()
     db.close()
     
     if not image:
         return jsonify({
             "status": "404",
             "messages": "Image not found",
-            "reduest_id": reduest_id,
+            "reduest_id": request_id,
             "error": ""
         }), 404
     
@@ -97,11 +97,11 @@ def get_slice(reduest_id):
         return jsonify({
             "status": "404",
             "messages": str(e),
-            "reduest_id": reduest_id,
+            "reduest_id": request_id,
             "error": ""
         }), 404
     
-    output_filename = f"slice_{reduest_id}.tif"
+    output_filename = f"slice_{request_id}.tif"
     output_path = os.path.join("media", output_filename)
     tifffile.imwrite(output_path, slice_data)
     
@@ -110,7 +110,7 @@ def get_slice(reduest_id):
     return jsonify({
         "status": "200",
         "messages": "Slice successfully retrieved",
-        "reduest_id": reduest_id,
+        "reduest_id": request_id,
         "data": {"url": file_url}
     }), 200
 

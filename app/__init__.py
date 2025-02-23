@@ -6,6 +6,11 @@ from app.admin import setup_admin
 from app.routes import register_routes
 from app.celery_app import celery, make_celery
 from app.tasks import example_task
+from app.models import init_db  # Import the init_db function
+
+# Define the SQLAlchemy and Migrate instances globally
+db = SQLAlchemy()
+migrate = Migrate()
 
 def create_app():
     app = Flask(__name__, static_folder='static', static_url_path='/static')
@@ -23,9 +28,14 @@ def create_app():
     # Configurations
     app.config.from_object('config.Config')
 
-    # sql alchemy and Migrate instances
-    db = SQLAlchemy(app)
-    migrate = Migrate(app, db)
+    # Initialize SQLAlchemy and Migrate
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    # Initialize the database (create tables)
+    with app.app_context():
+        init_db()
+
     setup_admin(app)
     register_routes(app)
 

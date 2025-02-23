@@ -4,8 +4,30 @@ services:
   web:
     build: .
     ports:
-      - "5000:5000"
+      - "${PORT:-5000}:${PORT:-5000}"  # Use port from .env or default to 5000
     volumes:
-      - .:/app
+      - .:/opt
+      - ./media:/opt/media  # Add media volume
+      - ./logs:/opt/logs    # Add logs volume
+    depends_on:
+      - redis
     environment:
       - ENV=production
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - PORT=${PORT:-5000}  # Pass the port to the container
+      - FLASK_APP=${FLASK_APP:-run.py}  # Pass the FLASK_APP to the container
+    command: ["./run_gunicorn.sh"]  # Use Gunicorn to run the app
+    networks:
+      - app-network
+
+  redis:
+    image: "redis:6.2-alpine"
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
