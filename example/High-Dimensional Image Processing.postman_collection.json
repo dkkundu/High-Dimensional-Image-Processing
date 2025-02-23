@@ -1,0 +1,103 @@
+{
+	"info": {
+		"_postman_id": "3b1baad6-2a60-491b-9ed7-efdbcd3b3034",
+		"name": "High-Dimensional Image Processing",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "9115809",
+		"_collection_link": "https://dkkkundu.postman.co/workspace/DIPTO-PERSONAL~cd37373d-090b-4547-841b-06cd8ae23bc2/collection/31978294-3b1baad6-2a60-491b-9ed7-efdbcd3b3034?action=share&source=collection_link&creator=9115809"
+	},
+	"item": [
+		{
+			"name": "Upload file",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/home/dkkundu/Downloads/5D images/ff/tubhiswt-4D/tubhiswt_C0_TP10.ome.tif"
+						}
+					]
+				},
+				"url": "http://127.0.0.1:5000/upload"
+			},
+			"response": []
+		},
+		{
+			"name": "get metadata",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:5000/metadata/77d67944-082a-4956-b4be-540f94e1d33"
+			},
+			"response": []
+		},
+		{
+			"name": "get slice",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:5000/slice/77d67944-082a-4956-b4be-540f94e1d33?time=1&z=3&channel=2",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "5000",
+					"path": [
+						"slice",
+						"77d67944-082a-4956-b4be-540f94e1d33"
+					],
+					"query": [
+						{
+							"key": "time",
+							"value": "1"
+						},
+						{
+							"key": "z",
+							"value": "3"
+						},
+						{
+							"key": "channel",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "analyze_image",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"components\": 3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://127.0.0.1:5000/analyze/77d67944-082a-4956-b4be-540f94e1d33"
+			},
+			"response": []
+		},
+		{
+			"name": "statistics",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://127.0.0.1:5000/statistics/77d67944-082a-4956-b4be-540f94e1d33"
+			},
+			"response": []
+		}
+	]
+}

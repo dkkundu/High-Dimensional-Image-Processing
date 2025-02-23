@@ -70,6 +70,16 @@
     pytest
     ```
 
+## Postman Collection
+
+You can download the Postman collection for this project from the following path:
+```
+/mnt/backup/Office/python test/example/High-Dimensional Image Processing.postman_collection.json
+```
+
+Alternatively, you can download it from the GitHub repository:
+[High-Dimensional Image Processing.postman_collection.json](https://github.com/dkkundu/High-Dimensional-Image-Processing/blob/main/example/High-Dimensional%20Image%20Processing.postman_collection.json)
+
 ## Note
 
 Make sure Redis is installed on your system.
