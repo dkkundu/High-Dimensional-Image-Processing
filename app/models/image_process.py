@@ -1,10 +1,10 @@
-from sqlalchemy import Column, Integer, String, Float, JSON
+from sqlalchemy import Column, Integer, String, Float, JSON, DateTime
 from .base import Base  # Updated import
 
 class ImageMetadata(Base):
     __tablename__ = 'image_metadata'
     id = Column(Integer, primary_key=True)
-    reduest_id = Column(String, nullable=False)
+    request_id = Column(String, nullable=False)
     filename = Column(String, nullable=False)
     dimensions = Column(String, nullable=False)
     file_path = Column(String, nullable=False)

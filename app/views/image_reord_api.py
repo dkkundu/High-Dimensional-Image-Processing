@@ -1,6 +1,7 @@
 import uuid
 import os
 import tifffile
+import logging
 from flask import app, request, jsonify, send_file, abort
 from datetime import datetime
 from .image_processor import ImageProcessor
@@ -10,36 +11,43 @@ from app.tasks import (
     upload_image_task,
 )
 
-
+# Configure logging
+logger = logging.getLogger(__name__)
 
 def upload_image():
+    logger.info("Received upload image request")
     if 'file' not in request.files:
+        logger.error("No file part in the request")
         return jsonify({"error": "No file part"}), 400
     file = request.files['file']
     if not file.filename.endswith(('.tif', '.tiff')):
+        logger.error("Invalid file format")
         return jsonify({"error": "Invalid file format"}), 400
 
-    reduest_id = str(uuid.uuid4())
-    file_path = os.path.join("media", f"{reduest_id}_{file.filename}")
+    request_id = str(uuid.uuid4())
+    file_path = os.path.join("media", f"{request_id}_{file.filename}")
     file.save(file_path)
 
-    task = upload_image_task.delay(file_path, reduest_id)
+    task = upload_image_task.delay(file_path, request_id)
+    logger.info(f"File uploaded successfully with request_id: {request_id}")
 
     return jsonify(
         {
             "status": "201",
             "task_id": task.id, 
-            "reduest_id": reduest_id,
+            "request_id": request_id,
             "message": "File upload request successfully processed"
             }
         ), 202
 
 def get_metadata(request_id):
+    logger.info(f"Received get metadata request for request_id: {request_id}")
     db = SessionLocal()
     image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(request_id)).first()
     db.close()
     
     if not image:
+        logger.error(f"Image not found for request_id: {request_id}")
         return {"error": "Image not found"}, 404
     
     metadata_response = {
@@ -63,16 +71,18 @@ def get_metadata(request_id):
                 f"Page {i}": str(page.tags) for i, page in enumerate(tif.pages)
             }
     except Exception as e:
+        logger.error(f"Error retrieving metadata for request_id: {request_id} - {str(e)}")
         metadata_response["error"] = str(e)
     
     return jsonify({
         "status": "200",
         "messages": "Metadata successfully retrieved",
-        "reduest_id": request_id,
+        "request_id": request_id,
         "data": metadata_response
     }), 200
 
 def get_slice(request_id):
+    logger.info(f"Received get slice request for request_id: {request_id}")
     time = request.args.get('time', type=int)
     z = request.args.get('z', type=int)
     channel = request.args.get('channel', type=int)
@@ -82,10 +92,11 @@ def get_slice(request_id):
     db.close()
     
     if not image:
+        logger.error(f"Image not found for request_id: {request_id}")
         return jsonify({
             "status": "404",
             "messages": "Image not found",
-            "reduest_id": request_id,
+            "request_id": request_id,
             "error": ""
         }), 404
     
@@ -94,10 +105,11 @@ def get_slice(request_id):
     try:
         slice_data = processor.get_slice(time, z, channel)
     except IndexError as e:
+        logger.error(f"Error retrieving slice for request_id: {request_id} - {str(e)}")
         return jsonify({
             "status": "404",
             "messages": str(e),
-            "reduest_id": request_id,
+            "request_id": request_id,
             "error": ""
         }), 404
     
@@ -110,12 +122,14 @@ def get_slice(request_id):
     return jsonify({
         "status": "200",
         "messages": "Slice successfully retrieved",
-        "reduest_id": request_id,
+        "request_id": request_id,
         "data": {"url": file_url}
     }), 200
 
 def analyze_image(request_id):
+    logger.info(f"Received analyze image request for request_id: {request_id}")
     if request.content_type != 'application/json':
+        logger.error("Unsupported Media Type")
         return jsonify({"error": "Unsupported Media Type"}), 415
 
     data = request.get_json()
@@ -126,6 +140,7 @@ def analyze_image(request_id):
     db.close()
     
     if not image:
+        logger.error(f"Image not found for request_id: {request_id}")
         return {"error": "Image not found"}
     
     processor = ImageProcessor(image.file_path)
@@ -164,11 +179,13 @@ def analyze_image(request_id):
     ), 200
 
 def get_statistics(request_id):
+    logger.info(f"Received get statistics request for request_id: {request_id}")
     db = SessionLocal()
     image = db.query(ImageMetadata).filter(ImageMetadata.file_path.contains(request_id)).first()
     db.close()
     
     if not image:
+        logger.error(f"Image not found for request_id: {request_id}")
         return {"error": "Image not found"}
     
     processor = ImageProcessor(image.file_path)

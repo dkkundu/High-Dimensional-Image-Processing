@@ -5,6 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
+*.pyc
+**.pyc
 
 # Distribution / packaging
 .Python
@@ -119,10 +121,21 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
+__pycache__/** */
+__pycache__**
+**__pycache__**
+__pycache__/
+__pycache__/
+app/__pycache__/__init__.cpython-38.pyc
+app/__pycache__/__init__.cpython-38.pyc
+app/views/__pycache__/image_reord_api.cpython-38.pyc
+migrations/__pycache__/env.cpython-38.pyc
+migrations**
+migrations/
 # Media files
 media/
 
 # VS Code
 .vscode/
+*.pyc
 ```

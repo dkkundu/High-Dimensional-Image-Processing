@@ -1,4 +1,5 @@
 import os
+import logging
 from flask import Flask, render_template, send_from_directory
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -41,10 +42,27 @@ def create_app():
 
     celery = make_celery(app)
 
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    # Add file handler to save logs to a file
+    file_handler = logging.FileHandler('logs/app.log')
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
     # HTTP error handling
     @app.errorhandler(404)
     def not_found(error):
+        logger.error(f"404 error: {error}")
         return render_template('404.html'), 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        logger.error(f"500 error: {error}")
+        return render_template('500.html'), 500
 
     @app.route('/')
     def home():

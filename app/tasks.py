@@ -10,10 +10,10 @@ import os
 UPLOAD_DIR = "uploads"
 
 @celery.task
-def upload_image_task(file_path, reduest_id):
+def upload_image_task(file_path, request_id):
     processor = ImageProcessor(file_path)
     metadata = {
-        "reduest_id": reduest_id,
+        "request_id": request_id,
         "filename": os.path.basename(file_path),
         "dimensions": str(processor.shape),
         "file_path": file_path,
